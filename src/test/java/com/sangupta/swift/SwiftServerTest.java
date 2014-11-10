@@ -21,7 +21,6 @@
 
 package com.sangupta.swift;
 
-import java.io.File;
 
 /**
  * A simple class to test swift server.
@@ -32,16 +31,19 @@ import java.io.File;
 public class SwiftServerTest {
 	
 	public static void main(String[] args) {
-//		SwiftServer proxyServer = new SwiftServer().listen(8080)
-//											  .withServerName("swift.com")
-//											  .proxy("http://localhost:18080")
-//											  .addProxyHeader("Host", "$host")
-//											  .addProxyHeader("X-Real-IP", "$remote_addr")
-//											  .addProxyHeader("X-Forwarded-For", "$remote_addr");
+		SwiftServer server = new SwiftServer().listen(23232)
+										  .withServerName("swift")
+										  .proxy("test.multiplx.com")
+										  .addProxyHeader("Host", "$host")
+										  .addProxyHeader("X-Real-IP", "$remote_addr")
+										  .addProxyHeader("X-Forwarded-For", "$remote_addr");
 		
-		SwiftServer httpServer = new SwiftServer().listen(8080)
-												  .withServerName("swift")
-												  .withDocumentRoot(new File("c:/logs"));
+//		SwiftServer httpServer = new SwiftServer().listen(8080)
+//												  .withServerName("swift")
+//												  .enableSSL()
+//												  .usingSelfSignedCert()
+//												  .enableSpdySupport()
+//												  .withDocumentRoot(new File("c:/logs"));
 		
 //		SwiftServer httpOrSpdyServer = new SwiftServer().listen(8082)
 //														.withServerName("swift.com")
@@ -49,8 +51,9 @@ public class SwiftServerTest {
 //														.withDocumentRoot(new File("/Users/sangupta/logs"));
 		
 		Swift swift = new Swift()
+						.addServer(server)
 //						.addServer(proxyServer)
-						.addServer(httpServer)
+//						.addServer(httpServer)
 //						.addServer(httpOrSpdyServer)
 						;
 		

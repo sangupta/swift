@@ -24,6 +24,10 @@ package com.sangupta.swift;
 import java.io.File;
 import java.util.UUID;
 
+import com.sangupta.jerry.util.AssertUtils;
+import com.sangupta.jerry.util.UriUtils;
+import com.sangupta.jerry.util.UrlManipulator;
+
 /**
  * A single endpoint to which we can listen.
  * 
@@ -32,7 +36,7 @@ import java.util.UUID;
  */
 public class SwiftServer {
 	
-private final String serverID = UUID.randomUUID().toString();
+	private final String serverID = UUID.randomUUID().toString();
 	
 	private int listenPort;
 	
@@ -49,6 +53,8 @@ private final String serverID = UUID.randomUUID().toString();
 	private boolean selfSignedSSL = true;
 	
 	private boolean proxyEnabled = false;
+	
+	private String proxyDestination = null;
 
 	public SwiftServer listen(int port) {
 		this.listenPort = port;
@@ -66,7 +72,23 @@ private final String serverID = UUID.randomUUID().toString();
 	}
 	
 	public SwiftServer proxy(String destination) {
+		if(AssertUtils.isEmpty(destination)) {
+			this.proxyEnabled = false;
+			return this;
+		}
+		
+		this.proxyDestination = destination;
+		this.proxyEnabled = true;
 		return this;
+	}
+	
+	public String getProxyHost() {
+		return new UrlManipulator(this.proxyDestination).getHost();
+	}
+	
+	public int getProxyPort() {
+		// TODO: this can be speeded up
+		return new UrlManipulator(this.proxyDestination).getPort();
 	}
 
 	public SwiftServer addProxyHeader(String name, String value) {

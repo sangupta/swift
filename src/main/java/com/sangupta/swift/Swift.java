@@ -28,6 +28,7 @@ import java.util.Set;
 
 import com.sangupta.swift.netty.NettyServer;
 import com.sangupta.swift.netty.http.HttpStaticFileServer;
+import com.sangupta.swift.netty.proxy.ReverseProxyServer;
 import com.sangupta.swift.netty.spdy.SpdyStaticFileServer;
 
 /**
@@ -108,19 +109,10 @@ public class Swift {
 		}
 		
 		if(server.isProxyEnabled()) {
-			registerProxyServer(server);
+			return new ReverseProxyServer(server);
 		}
 		
 		return null;
-	}
-
-	/**
-	 * Register a spoon feeding proxy server
-	 * 
-	 * @param server
-	 */
-	private void registerProxyServer(SwiftServer server) {
-		
 	}
 
 }
