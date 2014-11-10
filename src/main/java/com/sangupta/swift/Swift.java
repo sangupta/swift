@@ -28,6 +28,7 @@ import java.util.Set;
 
 import com.sangupta.swift.netty.NettyServer;
 import com.sangupta.swift.netty.http.HttpStaticFileServer;
+import com.sangupta.swift.netty.spdy.SpdyStaticFileServer;
 
 /**
  * Swift is the main server, that runs multiple servers
@@ -97,6 +98,12 @@ public class Swift {
 	 */
 	private NettyServer initializeServer(SwiftServer server) {
 		if(server.isDocumentRootExists()) {
+			// check for spdy
+			if(server.isSpdyEnabled()) {
+				return new SpdyStaticFileServer(server);
+			}
+			
+			// normal plain vanilla http server
 			return new HttpStaticFileServer(server);
 		}
 		

@@ -28,6 +28,13 @@
 		    <version>4.0.24.Final</version>
 		</dependency>
 		
+		<!-- utility classes -->
+		<dependency>
+			<groupId>com.sangupta</groupId>
+			<artifactId>jerry-core</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+		
 		<!-- we need to remove this dependency -->
 		<dependency>
 		    <groupId>javax.activation</groupId>

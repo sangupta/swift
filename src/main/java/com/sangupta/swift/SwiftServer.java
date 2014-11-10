@@ -32,7 +32,7 @@ import java.util.UUID;
  */
 public class SwiftServer {
 	
-	private final String serverID = UUID.randomUUID().toString();
+private final String serverID = UUID.randomUUID().toString();
 	
 	private int listenPort;
 	
@@ -45,6 +45,8 @@ public class SwiftServer {
 	private boolean spdyEnabled = false;
 	
 	private boolean sslEnabled = false;
+	
+	private boolean selfSignedSSL = true;
 	
 	private boolean proxyEnabled = false;
 
@@ -90,7 +92,18 @@ public class SwiftServer {
 
 	public SwiftServer enableSpdySupport() {
 		this.spdyEnabled = true;
-		return null;
+		this.sslEnabled = true;
+		return this;
+	}
+	
+	public SwiftServer usingSelfSignedCert() {
+		this.selfSignedSSL = true;
+		return this;
+	}
+	
+	public SwiftServer enableSSL() {
+		this.sslEnabled = true;
+		return this;
 	}
 
 	// Basic methods
@@ -203,4 +216,12 @@ public class SwiftServer {
 	public File getDocumentRoot() {
 		return documentRoot;
 	}
+
+	/**
+	 * @return the selfSignedSSL
+	 */
+	public boolean isSelfSignedSSL() {
+		return selfSignedSSL;
+	}
+
 }

@@ -47,15 +47,21 @@ import java.util.regex.Pattern;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import com.sangupta.jerry.util.AssertUtils;
+
 public class NettyUtils {
 	
 	public static final String HTTP_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	
 	public static final String HTTP_DATE_GMT_TIMEZONE = "GMT";
 	
-	private static final Pattern INSECURE_URI = Pattern.compile(".*[<>&\"].*");
+	public static final Pattern INSECURE_URI = Pattern.compile(".*[<>&\"].*");
 	
-	private static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[A-Za-z0-9][-_A-Za-z0-9\\.]*");
+	public static final Pattern ALLOWED_FILE_NAME = Pattern.compile("[A-Za-z0-9][-_A-Za-z0-9\\.]*");
+	
+	public final static String SPDY_STREAM_ID = "X-SPDY-Stream-ID";
+	
+	public final static String SPDY_STREAM_PRIO = "X-SPDY-Stream-Priority";
 	
 	public static void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
 		FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, Unpooled.copiedBuffer("Failure: " + status + "\r\n", CharsetUtil.UTF_8));
@@ -220,4 +226,56 @@ public class NettyUtils {
 		// Close the connection as soon as the error message is sent.
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
+	
+	public static void sendListing(final ChannelHandlerContext ctx, final File dir, final String spdyRequest) {
+		FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+		response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/html; charset=UTF-8");
+		
+		if(AssertUtils.isNotEmpty(spdyRequest)) {
+			response.headers().set(SPDY_STREAM_ID, spdyRequest);
+			response.headers().set(SPDY_STREAM_PRIO, 0);
+		}
+
+		StringBuilder buf = new StringBuilder();
+		String dirPath = dir.getPath();
+
+		buf.append("<!DOCTYPE html>\r\n");
+		buf.append("<html><head><title>");
+		buf.append("Listing of: ");
+		buf.append(dirPath);
+		buf.append("</title></head><body>\r\n");
+
+		buf.append("<h3>Listing of: ");
+		buf.append(dirPath);
+		buf.append("</h3>\r\n");
+
+		buf.append("<ul>");
+		buf.append("<li><a href=\"../\">..</a></li>\r\n");
+
+		for (File f : dir.listFiles()) {
+			if (f.isHidden() || !f.canRead()) {
+				continue;
+			}
+
+			String name = f.getName();
+			if (!ALLOWED_FILE_NAME.matcher(name).matches()) {
+				continue;
+			}
+
+			buf.append("<li><a href=\"");
+			buf.append(name);
+			buf.append("\">");
+			buf.append(name);
+			buf.append("</a></li>\r\n");
+		}
+
+		buf.append("</ul></body></html>\r\n");
+		ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
+		response.content().writeBytes(buffer);
+		buffer.release();
+
+		// Close the connection as soon as the error message is sent.
+		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+	}
+
 }
