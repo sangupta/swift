@@ -4,6 +4,7 @@ swift
 A simple HTTP server using [Netty](http://netty.io) framework. 
 
 **NOTE: Very nascent - not to be used other than for development**
+** I use this repository to learn about NETTY in my free time**
 
 Versioning
 ----------
